@@ -9,4 +9,6 @@ How to execute:
 
 `npm install`
 
+`Retirar o ponto(.) antes do arquivo .config.js e mudar as variaveis e a string de conexão com o banco `
+
 `npm start`
