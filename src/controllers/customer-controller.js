@@ -57,6 +57,7 @@ exports.authenticate = async (req, res, next) => {
         }
 
         let token = await authService.generateToken({
+            id: customer._id,
             email: customer.email,
             name: customer.name
         });
@@ -71,6 +72,46 @@ exports.authenticate = async (req, res, next) => {
     } catch (error) {
          res.status(500).send({
             message: 'Falha ao processar sua requisição'
+        });
+    }
+};
+
+exports.refreshToken = async (req, res, next) => {
+
+    try {
+
+        // Recupera token
+        let token = req.body.token || req.query.token || req.headers['x-access-token'];
+        // Decodifica token
+        
+        let data =  await authService.decodeToken(token);
+       
+        let customer = await repository.getById(data.id);
+
+        if(!customer){
+            res.status(404).send({
+                message: 'Cliente não encontrado.'
+            });
+            return;
+        }
+        
+        let tokenData = await authService.generateToken({
+            id: customer._id,
+            email: customer.email,
+            name: customer.name
+        });
+
+        res.status(201).send({
+            token: tokenData,
+            data: {
+                email: customer.email,
+                name: customer.name
+            }
+        });
+    } catch (error) {
+         res.status(500).send({
+            message: 'Falha ao processar sua requisição',
+            data: error
         });
     }
 };
